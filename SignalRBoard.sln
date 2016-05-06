@@ -1,0 +1,66 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.25123.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SignalRBoard.WebUI", "SignalRBoard.WebUI\SignalRBoard.WebUI.csproj", "{5E35FE6D-2AF0-4F7D-80E4-7187F7E40D37}"
+EndProject
+Project("{00D1A9C2-B5F0-4AF3-8072-F6C62B433612}") = "SignalRBoard.Database", "SignalRBoard.Database\SignalRBoard.Database.sqlproj", "{D435D67B-F102-4393-AB7C-287E00280096}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SignalRBoard.DataAccess", "SignalRBoard.DataAccess\SignalRBoard.DataAccess.csproj", "{04CB5EAF-6F37-4179-9E0A-259450C94E31}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SignalRBoard.DataModel", "SignalRBoard.DataModel\SignalRBoard.DataModel.csproj", "{2A2D17FA-018E-4E8A-85DF-AD0831A08F3C}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{5E35FE6D-2AF0-4F7D-80E4-7187F7E40D37}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5E35FE6D-2AF0-4F7D-80E4-7187F7E40D37}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5E35FE6D-2AF0-4F7D-80E4-7187F7E40D37}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5E35FE6D-2AF0-4F7D-80E4-7187F7E40D37}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D435D67B-F102-4393-AB7C-287E00280096}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D435D67B-F102-4393-AB7C-287E00280096}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D435D67B-F102-4393-AB7C-287E00280096}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{D435D67B-F102-4393-AB7C-287E00280096}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D435D67B-F102-4393-AB7C-287E00280096}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D435D67B-F102-4393-AB7C-287E00280096}.Release|Any CPU.Deploy.0 = Release|Any CPU
+		{04CB5EAF-6F37-4179-9E0A-259450C94E31}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{04CB5EAF-6F37-4179-9E0A-259450C94E31}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{04CB5EAF-6F37-4179-9E0A-259450C94E31}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{04CB5EAF-6F37-4179-9E0A-259450C94E31}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2A2D17FA-018E-4E8A-85DF-AD0831A08F3C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2A2D17FA-018E-4E8A-85DF-AD0831A08F3C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2A2D17FA-018E-4E8A-85DF-AD0831A08F3C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2A2D17FA-018E-4E8A-85DF-AD0831A08F3C}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{D435D67B-F102-4393-AB7C-287E00280096} = {C583039B-7132-4B85-9902-11B15AB0DF57}
+		{04CB5EAF-6F37-4179-9E0A-259450C94E31} = {C583039B-7132-4B85-9902-11B15AB0DF57}
+	EndGlobalSection
+	GlobalSection(TeamFoundationVersionControl) = preSolution
+		SccNumberOfProjects = 5
+		SccEnterpriseProvider = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
+		SccTeamFoundationServer = https://cleancodedeveloper.visualstudio.com/defaultcollection
+		SccLocalPath0 = .
+		SccProjectUniqueName1 = SignalRBoard.Database\\SignalRBoard.Database.sqlproj
+		SccProjectTopLevelParentUniqueName1 = SignalRBoard.sln
+		SccProjectName1 = SignalRBoard.Database
+		SccLocalPath1 = SignalRBoard.Database
+		SccProjectUniqueName2 = SignalRBoard.WebUI\\SignalRBoard.WebUI.csproj
+		SccProjectName2 = SignalRBoard.WebUI
+		SccLocalPath2 = SignalRBoard.WebUI
+		SccProjectUniqueName3 = SignalRBoard.DataAccess\\SignalRBoard.DataAccess.csproj
+		SccProjectTopLevelParentUniqueName3 = SignalRBoard.sln
+		SccProjectName3 = SignalRBoard.DataAccess
+		SccLocalPath3 = SignalRBoard.DataAccess
+		SccProjectUniqueName4 = SignalRBoard.DataModel\\SignalRBoard.DataModel.csproj
+		SccProjectName4 = SignalRBoard.DataModel
+		SccLocalPath4 = SignalRBoard.DataModel
+	EndGlobalSection
+EndGlobal
