@@ -11,7 +11,7 @@ namespace SignalRBoard.DataModel
 
         public int MaxItems { get; set; }
 
-        public ICollection<Card> Cards { get; set; }
+        public List<Card> Cards { get; set; }
         
         public int Position { get; set; }
     }

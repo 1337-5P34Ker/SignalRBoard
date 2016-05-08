@@ -76,7 +76,7 @@ namespace SignalRBoard.DataAccess
             }
         }
 
-        public ICollection<Card> GetCards(CardParameters parameters)
+        public List<Card> GetCards(CardParameters parameters)
         {
             var cards = new List<Card>();
 
@@ -109,13 +109,13 @@ namespace SignalRBoard.DataAccess
                             };
                             cards.Add(card);
                         }
-                        return cards;
+                        return cards.OrderBy(c=>c.Position).ToList();
                     }
                 }
             }
         }
 
-        public ICollection<List> GetLists(ListParameters parameters)
+        public List<List> GetLists(ListParameters parameters)
         {
             var lists = new List<List>();
             using (SqlConnection con = CreateConnection())
@@ -152,8 +152,8 @@ namespace SignalRBoard.DataAccess
 
     internal interface IBoardDataProvider
     {
-        ICollection<Card> GetCards(CardParameters parameters);
+        List<Card> GetCards(CardParameters parameters);
 
-        ICollection<List> GetLists(ListParameters parameters);
+        List<List> GetLists(ListParameters parameters);
     }
 }

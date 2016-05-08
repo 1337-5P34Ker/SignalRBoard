@@ -4,18 +4,13 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{2A2D17FA-018E-4E8A-85DF-AD0831A08F3C}</ProjectGuid>
+    <ProjectGuid>{2C5CD905-970C-4F21-B00C-0C5B8E33D30C}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>SignalRBoard.DataModel</RootNamespace>
-    <AssemblyName>SignalRBoard.DataModel</AssemblyName>
+    <RootNamespace>SignalRBoard.Business</RootNamespace>
+    <AssemblyName>SignalRBoard.Business</AssemblyName>
     <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-    <SccProjectName>SAK</SccProjectName>
-    <SccLocalPath>SAK</SccLocalPath>
-    <SccAuxPath>SAK</SccAuxPath>
-    <SccProvider>SAK</SccProvider>
-    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -45,12 +40,18 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Badge.cs" />
-    <Compile Include="Board.cs" />
-    <Compile Include="Card.cs" />
-    <Compile Include="Enumerations.cs" />
-    <Compile Include="List.cs" />
+    <Compile Include="BoardHelper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\SignalRBoard.DataAccess\SignalRBoard.DataAccess.csproj">
+      <Project>{04CB5EAF-6F37-4179-9E0A-259450C94E31}</Project>
+      <Name>SignalRBoard.DataAccess</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\SignalRBoard.DataModel\SignalRBoard.DataModel.csproj">
+      <Project>{2A2D17FA-018E-4E8A-85DF-AD0831A08F3C}</Project>
+      <Name>SignalRBoard.DataModel</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

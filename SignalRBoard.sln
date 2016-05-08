@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SignalRBoard.DataAccess", "
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SignalRBoard.DataModel", "SignalRBoard.DataModel\SignalRBoard.DataModel.csproj", "{2A2D17FA-018E-4E8A-85DF-AD0831A08F3C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SignalRBoard.Business", "SignalRBoard.Business\SignalRBoard.Business.csproj", "{2C5CD905-970C-4F21-B00C-0C5B8E33D30C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -35,32 +37,12 @@ Global
 		{2A2D17FA-018E-4E8A-85DF-AD0831A08F3C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2A2D17FA-018E-4E8A-85DF-AD0831A08F3C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2A2D17FA-018E-4E8A-85DF-AD0831A08F3C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2C5CD905-970C-4F21-B00C-0C5B8E33D30C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2C5CD905-970C-4F21-B00C-0C5B8E33D30C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2C5CD905-970C-4F21-B00C-0C5B8E33D30C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2C5CD905-970C-4F21-B00C-0C5B8E33D30C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
-	EndGlobalSection
-	GlobalSection(NestedProjects) = preSolution
-		{D435D67B-F102-4393-AB7C-287E00280096} = {C583039B-7132-4B85-9902-11B15AB0DF57}
-		{04CB5EAF-6F37-4179-9E0A-259450C94E31} = {C583039B-7132-4B85-9902-11B15AB0DF57}
-	EndGlobalSection
-	GlobalSection(TeamFoundationVersionControl) = preSolution
-		SccNumberOfProjects = 5
-		SccEnterpriseProvider = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
-		SccTeamFoundationServer = https://cleancodedeveloper.visualstudio.com/defaultcollection
-		SccLocalPath0 = .
-		SccProjectUniqueName1 = SignalRBoard.Database\\SignalRBoard.Database.sqlproj
-		SccProjectTopLevelParentUniqueName1 = SignalRBoard.sln
-		SccProjectName1 = SignalRBoard.Database
-		SccLocalPath1 = SignalRBoard.Database
-		SccProjectUniqueName2 = SignalRBoard.WebUI\\SignalRBoard.WebUI.csproj
-		SccProjectName2 = SignalRBoard.WebUI
-		SccLocalPath2 = SignalRBoard.WebUI
-		SccProjectUniqueName3 = SignalRBoard.DataAccess\\SignalRBoard.DataAccess.csproj
-		SccProjectTopLevelParentUniqueName3 = SignalRBoard.sln
-		SccProjectName3 = SignalRBoard.DataAccess
-		SccLocalPath3 = SignalRBoard.DataAccess
-		SccProjectUniqueName4 = SignalRBoard.DataModel\\SignalRBoard.DataModel.csproj
-		SccProjectName4 = SignalRBoard.DataModel
-		SccLocalPath4 = SignalRBoard.DataModel
 	EndGlobalSection
 EndGlobal

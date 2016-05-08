@@ -66,19 +66,20 @@
                     <label for="description">Beschreibung:</label>
                     <textarea id="description" class="form-control" placeholder="Beschreibung" style="height: 75px"></textarea>
                 </div>
-                <div class="form-group">
-                    <input type="button" id="btnSave" value="Add" class="btn btn-primary" />
-                    <input type="button" id="btnUpdate" value="Update" class="btn btn-default"/>
-                    <input type="button" id="btnDelete" value="Delete" class="btn btn-default"/>
-
-                    <input type="button" id="btnMoveUp" value="Up" class="btn btn-default"/>
-                    <input type="button" id="btnMoveDown" value="Down" class="btn btn-default"/>
-                    <input type="button" id="btnMoveRight" value="Right" class="btn btn-default"/>
+                <div class="btn-group" role="group">
+                    <input type="button" id="btnSave" value="Add" class="btn btn-default" />
+                    <input type="button" id="btnUpdate" value="Update" class="btn btn-default" />
+                    <input type="button" id="btnDelete" value="Delete" class="btn btn-default" />
+                </div>
+                <div class="btn-group" role="group" style="margin-top:30px">
+                    <input type="button" id="btnMoveUp" value="Up" class="btn btn-default" />
+                    <input type="button" id="btnMoveDown" value="Down" class="btn btn-default" />
+                    <input type="button" id="btnMoveRight" value="Right" class="btn btn-default" />
                     <input type="button" id="btnMoveLeft" value="Left" class="btn btn-default" />
-
                 </div>
             </div>
         </div>
+    </div>
 
     </div>
 
@@ -108,7 +109,7 @@
                         //console.log(card);
                         //console.log(index);
                         var template = $("<a onclick='getCard(this)' href='#form' class='list-group-item'><h4 class='list-group-item-heading'>Lorem ipsum</h4><p class='list-group-item-text'>Dolor sit amet</p></a>");
-                        $('h4', template).text(card.Title);
+                        $('h4', template).text(card.Title + ' - ' + card.Position);
                         $('p', template).text(card.Description);
                         $(template).data('cardId', card.Id);
                         $(template).attr('id', card.Id);
