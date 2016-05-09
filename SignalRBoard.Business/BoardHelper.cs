@@ -67,9 +67,25 @@ namespace SignalRBoard.Business
             }
         }
 
+        private static void UpdateCard(Card card)
+        {
+            using (BoardDataProvider provider = new BoardDataProvider())
+            {
+                provider.UpdateCard(new CardParameters
+                {
+                    Id = card.Id,
+                    Position = card.Position,
+                    Description = card.Description,
+                    Title = card.Title,
+                    ListId = card.ListId
+                });
+            }
+        }
+
         public static Board MoveCard(Guid cardId, Direction direction)
         {
             Board board = new Board();
+            List affectedList;
             using (BoardDataProvider provider = new BoardDataProvider())
             {
                 board.Lists = provider.GetLists(new ListParameters()).OrderBy(l => l.Position).ToList();
@@ -92,41 +108,20 @@ namespace SignalRBoard.Business
             {
                 case Direction.Up:
 
-                    var affectedRow = board.Lists.FirstOrDefault(l => l.Cards.Any(c => c.Id == cardId));
-                    if (affectedRow != null)
+                    affectedList = board.Lists.FirstOrDefault(l => l.Cards.Any(c => c.Id == cardId));
+                    if (affectedList != null)
                     {
-                        var card1 = affectedRow.Cards.First(c => c.Id == cardId);
+                        var card1 = affectedList.Cards.First(c => c.Id == cardId);
 
                         if (card1.Position > 0)
                         {
-                            var card2 = affectedRow.Cards.FirstOrDefault(c => c.Position == card1.Position - 1);
+                            var card2 = affectedList.Cards.FirstOrDefault(c => c.Position == card1.Position - 1);
                             if (card2 != null)
                             {
                                 card2.Position = card1.Position;
                                 card1.Position = card1.Position - 1;
-
-                                using (BoardDataProvider provider = new BoardDataProvider())
-                                {
-                                    provider.UpdateCard(new CardParameters
-                                    {                                        
-                                        Id = card1.Id,
-                                        Position = card1.Position,
-                                        Description = card1.Description,
-                                        Title = card1.Title,
-                                        ListId = card1.ListId
-                                                                                
-                                    });
-
-                                    provider.UpdateCard(new CardParameters
-                                    {
-                                        Id = card2.Id,
-                                        Position = card2.Position,
-                                        Description = card2.Description,
-                                        Title = card2.Title,
-                                        ListId = card2.ListId
-                                    });
-                                }
-
+                                UpdateCard(card1);
+                                UpdateCard(card2);
                             }
 
                         }
@@ -135,6 +130,24 @@ namespace SignalRBoard.Business
 
                 case Direction.Down:
 
+                     affectedList = board.Lists.FirstOrDefault(l => l.Cards.Any(c => c.Id == cardId));
+                    if (affectedList != null)
+                    {
+                        var card1 = affectedList.Cards.First(c => c.Id == cardId);
+
+                        if (card1.Position < affectedList.Cards.Count)
+                        {
+                            var card2 = affectedList.Cards.FirstOrDefault(c => c.Position == card1.Position + 1);
+                            if (card2 != null)
+                            {
+                                card2.Position = card1.Position;
+                                card1.Position = card1.Position + 1;
+                                UpdateCard(card1);
+                                UpdateCard(card2);
+                            }
+
+                        }
+                    }
                     break;
             }
 

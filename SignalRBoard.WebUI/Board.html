@@ -175,6 +175,11 @@
                     // Call the Update method on the hub.
                     board.server.Move($('#cardId').val(), "Up");
                 });
+
+                $('#btnMoveDown').click(function () {
+                    // Call the Update method on the hub.
+                    board.server.Move($('#cardId').val(), "Down");
+                });
             });
         });
     </script>
