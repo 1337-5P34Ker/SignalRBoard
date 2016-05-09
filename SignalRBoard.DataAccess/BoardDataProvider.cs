@@ -132,6 +132,7 @@ namespace SignalRBoard.DataAccess
                         var id = reader.GetOrdinal("Id");
                         var name = reader.GetOrdinal("Name");
                         var max = reader.GetOrdinal("MaxItems");
+                        var position = reader.GetOrdinal("Position");
 
                         while (reader.Read())
                         {
@@ -139,7 +140,8 @@ namespace SignalRBoard.DataAccess
                             {
                                 Id = reader.GetGuid(id),
                                 Name = reader.GetString(name),
-                                MaxItems = reader.GetInt32(max)
+                                MaxItems = reader.GetInt32(max),
+                                Position = reader.GetInt32(position),
                             };
                             lists.Add(list);
                         }

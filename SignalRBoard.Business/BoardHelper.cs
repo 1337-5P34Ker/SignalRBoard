@@ -85,7 +85,8 @@ namespace SignalRBoard.Business
         public static Board MoveCard(Guid cardId, Direction direction)
         {
             Board board = new Board();
-            List affectedList;
+            List affectedList1, affectedList2;
+            Card affectedCard1, affectedCard2;
             using (BoardDataProvider provider = new BoardDataProvider())
             {
                 board.Lists = provider.GetLists(new ListParameters()).OrderBy(l => l.Position).ToList();
@@ -108,20 +109,20 @@ namespace SignalRBoard.Business
             {
                 case Direction.Up:
 
-                    affectedList = board.Lists.FirstOrDefault(l => l.Cards.Any(c => c.Id == cardId));
-                    if (affectedList != null)
+                    affectedList1 = board.Lists.FirstOrDefault(l => l.Cards.Any(c => c.Id == cardId));
+                    if (affectedList1 != null)
                     {
-                        var card1 = affectedList.Cards.First(c => c.Id == cardId);
+                        affectedCard1 = affectedList1.Cards.First(c => c.Id == cardId);
 
-                        if (card1.Position > 0)
+                        if (affectedCard1.Position > 0)
                         {
-                            var card2 = affectedList.Cards.FirstOrDefault(c => c.Position == card1.Position - 1);
-                            if (card2 != null)
+                            affectedCard2 = affectedList1.Cards.FirstOrDefault(c => c.Position == affectedCard1.Position - 1);
+                            if (affectedCard2 != null)
                             {
-                                card2.Position = card1.Position;
-                                card1.Position = card1.Position - 1;
-                                UpdateCard(card1);
-                                UpdateCard(card2);
+                                affectedCard2.Position = affectedCard1.Position;
+                                affectedCard1.Position = affectedCard1.Position - 1;
+                                UpdateCard(affectedCard1);
+                                UpdateCard(affectedCard2);
                             }
 
                         }
@@ -130,22 +131,53 @@ namespace SignalRBoard.Business
 
                 case Direction.Down:
 
-                     affectedList = board.Lists.FirstOrDefault(l => l.Cards.Any(c => c.Id == cardId));
-                    if (affectedList != null)
+                    affectedList1 = board.Lists.FirstOrDefault(l => l.Cards.Any(c => c.Id == cardId));
+                    if (affectedList1 != null)
                     {
-                        var card1 = affectedList.Cards.First(c => c.Id == cardId);
+                        affectedCard1 = affectedList1.Cards.First(c => c.Id == cardId);
 
-                        if (card1.Position < affectedList.Cards.Count)
+                        if (affectedCard1.Position < affectedList1.Cards.Count)
                         {
-                            var card2 = affectedList.Cards.FirstOrDefault(c => c.Position == card1.Position + 1);
-                            if (card2 != null)
+                            affectedCard2 = affectedList1.Cards.FirstOrDefault(c => c.Position == affectedCard1.Position + 1);
+                            if (affectedCard2 != null)
                             {
-                                card2.Position = card1.Position;
-                                card1.Position = card1.Position + 1;
-                                UpdateCard(card1);
-                                UpdateCard(card2);
+                                affectedCard2.Position = affectedCard1.Position;
+                                affectedCard1.Position = affectedCard1.Position + 1;
+                                UpdateCard(affectedCard1);
+                                UpdateCard(affectedCard2);
                             }
 
+                        }
+                    }
+                    break;
+                    case Direction.Right:
+                    affectedList1 = board.Lists.FirstOrDefault(l => l.Cards.Any(c => c.Id == cardId));
+                    
+                    if (affectedList1 != null)
+                    {
+                        affectedCard1 = affectedList1.Cards.First(c => c.Id == cardId);
+                        affectedList2 = board.Lists.FirstOrDefault(l => l.Position == affectedList1.Position + 1);
+                        if (affectedList2 != null)
+                        {
+                            affectedCard1.ListId = affectedList2.Id;
+                            UpdateCard(affectedCard1);
+                        }
+
+                    }
+
+                    break;
+
+                case Direction.Left:
+                    affectedList1 = board.Lists.FirstOrDefault(l => l.Cards.Any(c => c.Id == cardId));
+
+                    if (affectedList1 != null)
+                    {
+                        affectedCard1 = affectedList1.Cards.First(c => c.Id == cardId);
+                        affectedList2 = board.Lists.FirstOrDefault(l => l.Position == affectedList1.Position - 1);
+                        if (affectedList2 != null)
+                        {
+                            affectedCard1.ListId = affectedList2.Id;
+                            UpdateCard(affectedCard1);
                         }
                     }
                     break;
