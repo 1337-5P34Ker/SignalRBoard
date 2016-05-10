@@ -113,21 +113,19 @@ namespace SignalRBoard.Business
                     if (affectedList1 != null)
                     {
                         affectedCard1 = affectedList1.Cards.First(c => c.Id == cardId);
-
                         if (affectedCard1.Position > 0)
                         {
-                            affectedCard2 = affectedList1.Cards.FirstOrDefault(c => c.Position == affectedCard1.Position - 1);
-                            if (affectedCard2 != null)
+                            var index = affectedList1.Cards.IndexOf(affectedCard1);
+                            affectedList1.Cards.Remove(affectedCard1);
+                            affectedList1.Cards.Insert(index - 1, affectedCard1);
+                            foreach (var card in affectedList1.Cards)
                             {
-                                affectedCard2.Position = affectedCard1.Position;
-                                affectedCard1.Position = affectedCard1.Position - 1;
-                                UpdateCard(affectedCard1);
-                                UpdateCard(affectedCard2);
+                                card.Position = affectedList1.Cards.IndexOf(card); // reset positions
+                                UpdateCard(card);
                             }
-
                         }
                     }
-                        break;
+                    break;
 
                 case Direction.Down:
 
@@ -138,21 +136,20 @@ namespace SignalRBoard.Business
 
                         if (affectedCard1.Position < affectedList1.Cards.Count)
                         {
-                            affectedCard2 = affectedList1.Cards.FirstOrDefault(c => c.Position == affectedCard1.Position + 1);
-                            if (affectedCard2 != null)
+                            var index = affectedList1.Cards.IndexOf(affectedCard1);
+                            affectedList1.Cards.Remove(affectedCard1);
+                            affectedList1.Cards.Insert(index + 1, affectedCard1);
+                            foreach (var card in affectedList1.Cards)
                             {
-                                affectedCard2.Position = affectedCard1.Position;
-                                affectedCard1.Position = affectedCard1.Position + 1;
-                                UpdateCard(affectedCard1);
-                                UpdateCard(affectedCard2);
+                                card.Position = affectedList1.Cards.IndexOf(card); // reset positions
+                                UpdateCard(card);
                             }
-
                         }
                     }
                     break;
-                    case Direction.Right:
+                case Direction.Right:
                     affectedList1 = board.Lists.FirstOrDefault(l => l.Cards.Any(c => c.Id == cardId));
-                    
+
                     if (affectedList1 != null)
                     {
                         affectedCard1 = affectedList1.Cards.First(c => c.Id == cardId);
@@ -183,10 +180,10 @@ namespace SignalRBoard.Business
                     break;
             }
 
-            foreach (var list in board.Lists)
-            {
-                list.Cards = list.Cards.OrderBy(c => c.Position).ToList();                
-            }
+            //foreach (var list in board.Lists)
+            //{
+            //    list.Cards = list.Cards.OrderBy(c => c.Position).ToList();
+            //}
 
             return board;
         }
