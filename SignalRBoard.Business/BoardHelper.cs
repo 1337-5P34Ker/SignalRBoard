@@ -85,8 +85,8 @@ namespace SignalRBoard.Business
         public static Board MoveCard(Guid cardId, Direction direction)
         {
             Board board = new Board();
-            List affectedList1, affectedList2;
-            Card affectedCard1, affectedCard2;
+            List sourceList, destinationList;
+            Card affectedCard;
             using (BoardDataProvider provider = new BoardDataProvider())
             {
                 board.Lists = provider.GetLists(new ListParameters()).OrderBy(l => l.Position).ToList();
@@ -109,18 +109,18 @@ namespace SignalRBoard.Business
             {
                 case Direction.Up:
 
-                    affectedList1 = board.Lists.FirstOrDefault(l => l.Cards.Any(c => c.Id == cardId));
-                    if (affectedList1 != null)
+                    sourceList = board.Lists.FirstOrDefault(l => l.Cards.Any(c => c.Id == cardId));
+                    if (sourceList != null)
                     {
-                        affectedCard1 = affectedList1.Cards.First(c => c.Id == cardId);
-                        if (affectedCard1.Position > 0)
+                        affectedCard = sourceList.Cards.First(c => c.Id == cardId);
+                        var index = sourceList.Cards.IndexOf(affectedCard);
+                        if (index > 0)
                         {
-                            var index = affectedList1.Cards.IndexOf(affectedCard1);
-                            affectedList1.Cards.Remove(affectedCard1);
-                            affectedList1.Cards.Insert(index - 1, affectedCard1);
-                            foreach (var card in affectedList1.Cards)
+                            sourceList.Cards.Remove(affectedCard);
+                            sourceList.Cards.Insert(index - 1, affectedCard);
+                            foreach (var card in sourceList.Cards)
                             {
-                                card.Position = affectedList1.Cards.IndexOf(card); // reset positions
+                                card.Position = sourceList.Cards.IndexOf(card); // reset positions
                                 UpdateCard(card);
                             }
                         }
@@ -129,35 +129,47 @@ namespace SignalRBoard.Business
 
                 case Direction.Down:
 
-                    affectedList1 = board.Lists.FirstOrDefault(l => l.Cards.Any(c => c.Id == cardId));
-                    if (affectedList1 != null)
+                    sourceList = board.Lists.FirstOrDefault(l => l.Cards.Any(c => c.Id == cardId));
+                    if (sourceList != null)
                     {
-                        affectedCard1 = affectedList1.Cards.First(c => c.Id == cardId);
-
-                        if (affectedCard1.Position < affectedList1.Cards.Count)
+                        affectedCard = sourceList.Cards.First(c => c.Id == cardId);
+                        var index = sourceList.Cards.IndexOf(affectedCard);
+                        if (index < sourceList.Cards.Count - 1)
                         {
-                            var index = affectedList1.Cards.IndexOf(affectedCard1);
-                            affectedList1.Cards.Remove(affectedCard1);
-                            affectedList1.Cards.Insert(index + 1, affectedCard1);
-                            foreach (var card in affectedList1.Cards)
+                            sourceList.Cards.Remove(affectedCard);
+                            sourceList.Cards.Insert(sourceList.Cards.Count >= index + 1 ? index + 1 : sourceList.Cards.Count, affectedCard);
+                            foreach (var card in sourceList.Cards)
                             {
-                                card.Position = affectedList1.Cards.IndexOf(card); // reset positions
+                                card.Position = sourceList.Cards.IndexOf(card); // reset positions
                                 UpdateCard(card);
                             }
                         }
+
                     }
                     break;
                 case Direction.Right:
-                    affectedList1 = board.Lists.FirstOrDefault(l => l.Cards.Any(c => c.Id == cardId));
+                    sourceList = board.Lists.FirstOrDefault(l => l.Cards.Any(c => c.Id == cardId));
 
-                    if (affectedList1 != null)
+                    if (sourceList != null)
                     {
-                        affectedCard1 = affectedList1.Cards.First(c => c.Id == cardId);
-                        affectedList2 = board.Lists.FirstOrDefault(l => l.Position == affectedList1.Position + 1);
-                        if (affectedList2 != null)
+                        affectedCard = sourceList.Cards.First(c => c.Id == cardId);
+                        var index = sourceList.Cards.IndexOf(affectedCard);
+                        destinationList = board.Lists.FirstOrDefault(l => l.Position == sourceList.Position + 1);
+                        if (destinationList != null)
                         {
-                            affectedCard1.ListId = affectedList2.Id;
-                            UpdateCard(affectedCard1);
+                            sourceList.Cards.Remove(affectedCard);
+                            affectedCard.ListId = destinationList.Id;
+                            destinationList.Cards.Insert(destinationList.Cards.Count >= index ? index : destinationList.Cards.Count, affectedCard);
+                            foreach (var card in sourceList.Cards)
+                            {
+                                card.Position = sourceList.Cards.IndexOf(card); // reset positions
+                                UpdateCard(card);
+                            }
+                            foreach (var card in destinationList.Cards)
+                            {
+                                card.Position = destinationList.Cards.IndexOf(card); // reset positions
+                                UpdateCard(card);
+                            }
                         }
 
                     }
@@ -165,26 +177,32 @@ namespace SignalRBoard.Business
                     break;
 
                 case Direction.Left:
-                    affectedList1 = board.Lists.FirstOrDefault(l => l.Cards.Any(c => c.Id == cardId));
+                    sourceList = board.Lists.FirstOrDefault(l => l.Cards.Any(c => c.Id == cardId));
 
-                    if (affectedList1 != null)
+                    if (sourceList != null)
                     {
-                        affectedCard1 = affectedList1.Cards.First(c => c.Id == cardId);
-                        affectedList2 = board.Lists.FirstOrDefault(l => l.Position == affectedList1.Position - 1);
-                        if (affectedList2 != null)
+                        affectedCard = sourceList.Cards.First(c => c.Id == cardId);
+                        var index = sourceList.Cards.IndexOf(affectedCard);
+                        destinationList = board.Lists.FirstOrDefault(l => l.Position == sourceList.Position - 1);
+                        if (destinationList != null)
                         {
-                            affectedCard1.ListId = affectedList2.Id;
-                            UpdateCard(affectedCard1);
+                            sourceList.Cards.Remove(affectedCard);
+                            affectedCard.ListId = destinationList.Id;
+                            destinationList.Cards.Insert(destinationList.Cards.Count >= index ? index : destinationList.Cards.Count, affectedCard);
+                            foreach (var card in sourceList.Cards)
+                            {
+                                card.Position = sourceList.Cards.IndexOf(card); // reset positions
+                                UpdateCard(card);
+                            }
+                            foreach (var card in destinationList.Cards)
+                            {
+                                card.Position = destinationList.Cards.IndexOf(card); // reset positions
+                                UpdateCard(card);
+                            }
                         }
                     }
                     break;
             }
-
-            //foreach (var list in board.Lists)
-            //{
-            //    list.Cards = list.Cards.OrderBy(c => c.Position).ToList();
-            //}
-
             return board;
         }
     }
