@@ -12,18 +12,7 @@ namespace SignalRBoard.Business
     {
         public static Board InitializeBoard()
         {
-            Board board = new Board();
-            using (BoardDataProvider provider = new BoardDataProvider())
-            {
-                board.Lists = provider.GetLists(new ListParameters());
-                // Call the broadcastMessage method to update clients.
-
-                foreach (var list in board.Lists)
-                {
-                    list.Cards = provider.GetCards(new CardParameters { ListId = list.Id });
-                }
-            }
-            return board;
+            return GetBoard();
         }
 
         public static Card AddCard(string title, string description, string listId)
@@ -118,11 +107,7 @@ namespace SignalRBoard.Business
                         {
                             sourceList.Cards.Remove(affectedCard);
                             sourceList.Cards.Insert(index - 1, affectedCard);
-                            foreach (var card in sourceList.Cards)
-                            {
-                                card.Position = sourceList.Cards.IndexOf(card); // reset positions
-                                UpdateCard(card);
-                            }
+                            ResetPositions(sourceList);
                         }
                     }
                     break;
@@ -137,12 +122,8 @@ namespace SignalRBoard.Business
                         if (index < sourceList.Cards.Count - 1)
                         {
                             sourceList.Cards.Remove(affectedCard);
-                            sourceList.Cards.Insert(sourceList.Cards.Count >= index + 1 ? index + 1 : sourceList.Cards.Count, affectedCard);
-                            foreach (var card in sourceList.Cards)
-                            {
-                                card.Position = sourceList.Cards.IndexOf(card); // reset positions
-                                UpdateCard(card);
-                            }
+                            sourceList.Cards.Insert(index + 1, affectedCard);
+                            ResetPositions(sourceList);
                         }
 
                     }
@@ -160,16 +141,8 @@ namespace SignalRBoard.Business
                             sourceList.Cards.Remove(affectedCard);
                             affectedCard.ListId = destinationList.Id;
                             destinationList.Cards.Insert(destinationList.Cards.Count >= index ? index : destinationList.Cards.Count, affectedCard);
-                            foreach (var card in sourceList.Cards)
-                            {
-                                card.Position = sourceList.Cards.IndexOf(card); // reset positions
-                                UpdateCard(card);
-                            }
-                            foreach (var card in destinationList.Cards)
-                            {
-                                card.Position = destinationList.Cards.IndexOf(card); // reset positions
-                                UpdateCard(card);
-                            }
+                            ResetPositions(sourceList);
+                            ResetPositions(destinationList);
                         }
 
                     }
@@ -189,19 +162,74 @@ namespace SignalRBoard.Business
                             sourceList.Cards.Remove(affectedCard);
                             affectedCard.ListId = destinationList.Id;
                             destinationList.Cards.Insert(destinationList.Cards.Count >= index ? index : destinationList.Cards.Count, affectedCard);
-                            foreach (var card in sourceList.Cards)
-                            {
-                                card.Position = sourceList.Cards.IndexOf(card); // reset positions
-                                UpdateCard(card);
-                            }
-                            foreach (var card in destinationList.Cards)
-                            {
-                                card.Position = destinationList.Cards.IndexOf(card); // reset positions
-                                UpdateCard(card);
-                            }
+
+                            ResetPositions(sourceList);
+                            ResetPositions(destinationList);
                         }
                     }
                     break;
+            }
+            return board;
+        }
+
+        public static List<string> GetDirections(Guid cardId)
+        {
+            var board = GetBoard();
+            var directions = new List<string>();
+
+            var sourceList = board.Lists.FirstOrDefault(l => l.Cards.Any(c => c.Id == cardId));
+
+
+            if (sourceList != null)
+            {
+                var affectedCard = sourceList.Cards.First(c => c.Id == cardId);
+                var index = sourceList.Cards.IndexOf(affectedCard);
+                if (index < sourceList.Cards.Count - 1)
+                {
+                    directions.Add(Direction.Down.ToString());
+                }
+
+                if (index > 0)
+                {
+                    directions.Add(Direction.Up.ToString());
+                }
+
+                var destinationList = board.Lists.FirstOrDefault(l => l.Position == sourceList.Position + 1);  //right
+                if (destinationList != null && destinationList.Cards.Count <= destinationList.MaxItems)
+                {
+                    directions.Add(Direction.Right.ToString());
+                }
+
+                destinationList = board.Lists.FirstOrDefault(l => l.Position == sourceList.Position - 1); // left
+                if (destinationList != null && destinationList.Cards.Count <= destinationList.MaxItems)
+                {
+                    directions.Add(Direction.Left.ToString());
+                }
+            }
+            return directions;
+        }
+
+        private static void ResetPositions(List destinationList)
+        {
+            foreach (var card in destinationList.Cards)
+            {
+                card.Position = destinationList.Cards.IndexOf(card); // reset positions
+                UpdateCard(card);
+            }
+        }
+
+        private static Board GetBoard()
+        {
+            Board board = new Board();
+            using (BoardDataProvider provider = new BoardDataProvider())
+            {
+                board.Lists = provider.GetLists(new ListParameters());
+                // Call the broadcastMessage method to update clients.
+
+                foreach (var list in board.Lists)
+                {
+                    list.Cards = provider.GetCards(new CardParameters { ListId = list.Id });
+                }
             }
             return board;
         }

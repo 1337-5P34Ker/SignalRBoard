@@ -1,6 +1,13 @@
 ﻿<!DOCTYPE html>
 <html>
 <head>
+
+    <style type="text/css">
+        .activeCard {
+            background: url(/Images/activeCardBackground.png) top left repeat;
+        }
+    </style>
+
     <title>SignalR Board</title>
     <!-- Style references -->
     <link rel="stylesheet" href="Content/bootstrap.min.css" />
@@ -82,29 +89,30 @@
     </div>
     <!--Add script to update the page and send messages.-->
     <script type="text/javascript">
-
+        var board;
         function getCard(parameters) {
             console.log('cardId: ' + $(parameters).data('cardId'));
             $('#title').val($('h4', parameters).text());
             $('#description').val($('p', parameters).text());
             $('#cardId').val($(parameters).data('cardId'));
+            board.server.GetDirections($('#cardId').val());
+            $('.activeCard').removeClass('activeCard');
+            $(parameters).addClass('activeCard');
         }
 
 
         $(function () {
             // Declare a proxy to reference the hub.
-            var board = $.connection.boardHub;
+
+
+
+            board = $.connection.boardHub;
             // Create a function that the hub can call to broadcast messages.
             board.client.boardMessage = function (message) {
                 // Html encode display name and message.
                 console.log('boardMessage');
                 $.each(message, function (index, list) {
-                    //console.log(list);
-                    //console.log(index);
-
                     $.each(list.Cards, function (index, card) {
-                        //console.log(card);
-                        //console.log(index);
                         var template = $("<a onclick='getCard(this)' href='#form' class='list-group-item'><h4 class='list-group-item-heading'>Lorem ipsum</h4><p class='list-group-item-text'>Dolor sit amet</p></a>");
                         $('h4', template).text(card.Title + ' - ' + card.Position);
                         $('p', template).text(card.Description);
@@ -147,6 +155,26 @@
                 var id = '#' + cardId;
                 $(id).remove();
             };
+
+            board.client.directionsMessage = function (message) {
+                console.log('getDirectionsMessage');
+
+                $('#btnMoveLeft').prop('disabled', message.indexOf('Left') === -1);
+                $('#btnMoveRight').prop('disabled', message.indexOf('Right') === -1);
+                $('#btnMoveUp').prop('disabled', message.indexOf('Up') === -1);
+                $('#btnMoveDown').prop('disabled', message.indexOf('Down') === -1);
+
+            };
+
+            board.client.activateCardMessage = function (cardId) {
+                console.log('activateCardMessage');
+
+                $('.activeCard').removeClass('activeCard');
+                $('#' + cardId).addClass('activeCard');
+
+            };
+
+
 
             // Start the connection.
             $.connection.hub.start().done(function () {
@@ -192,6 +220,17 @@
                 });
             });
         });
+
+        function guid() {
+            function s4() {
+                return Math.floor((1 + Math.random()) * 0x10000)
+                  .toString(16)
+                  .substring(1);
+            }
+            return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
+              s4() + '-' + s4() + s4() + s4();
+        }
+
     </script>
 </body>
 </html>

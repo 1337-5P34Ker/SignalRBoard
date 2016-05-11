@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using Microsoft.AspNet.SignalR;
@@ -27,14 +28,14 @@ namespace SignalRBoard
             Clients.All.updateCardMessage(card);
         }
 
-
-
         [HubMethodName("Move")]
         public void Move(Guid cardId, Direction direction)
         {
             Board board = BoardHelper.MoveCard(cardId, direction);
             // Call the boardMessage method to update clients.
             Clients.All.boardMessage(board.Lists);
+            Clients.Caller.activateCardMessage(cardId);
+            Clients.Caller.directionsMessage(BoardHelper.GetDirections(cardId));
         }
 
         [HubMethodName("Delete")]
@@ -59,7 +60,7 @@ namespace SignalRBoard
             {
                 var result = provider.GetCards(new CardParameters());
                 // Call the broadcastMessage method to update clients.
-                Clients.All.broadcastMessage(result);
+                Clients.Caller.broadcastMessage(result);
             }
         }
 
@@ -72,6 +73,13 @@ namespace SignalRBoard
                 // Call the broadcastMessage method to update clients.
                 Clients.All.broadcastMessage(result);
             }
+        }
+
+        [HubMethodName("GetDirections")]
+        public void GetDirections(Guid cardId)
+        {
+            // Call the directionsMessage method to update single client.
+            Clients.Caller.directionsMessage(BoardHelper.GetDirections(cardId));
         }
     }
 }

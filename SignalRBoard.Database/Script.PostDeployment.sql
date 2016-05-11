@@ -10,8 +10,7 @@ Post-Deployment Script Template
 --------------------------------------------------------------------------------------
 */
 
-USE [SignalRBoard]
-GO
+
 
 DELETE FROM [dbo].[Boards]
 GO
