@@ -13,11 +13,11 @@ namespace SignalRBoard
     public class BoardHub : Hub
     {
         [HubMethodName("Add")]
-        public void Add(string title, string description, string listId)
+        public void Add(string title, string description)
         {
-            Card card = BoardHelper.AddCard(title, description, listId);
-            // Call the addCardMessage method to update clients.
-            Clients.All.addCardMessage(card);
+            Board board = BoardHelper.AddCard(title, description);
+            // Call the boardMessage method to update all clients.
+            Clients.All.boardMessage(board.Lists);
         }
 
         [HubMethodName("Update")]
@@ -32,6 +32,17 @@ namespace SignalRBoard
         public void Move(Guid cardId, Direction direction)
         {
             Board board = BoardHelper.MoveCard(cardId, direction);
+            // Call the boardMessage method to update clients.
+            Clients.All.boardMessage(board.Lists);
+            Clients.Caller.activateCardMessage(cardId);
+            Clients.Caller.directionsMessage(BoardHelper.GetDirections(cardId));
+        }
+
+
+        [HubMethodName("MoveTo")]
+        public void MoveTo(Guid cardId, Guid listId, int position)
+        {
+            Board board = BoardHelper.MoveCardTo(cardId, listId, position);
             // Call the boardMessage method to update clients.
             Clients.All.boardMessage(board.Lists);
             Clients.Caller.activateCardMessage(cardId);

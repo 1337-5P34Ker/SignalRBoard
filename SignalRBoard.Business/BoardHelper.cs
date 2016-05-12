@@ -15,19 +15,23 @@ namespace SignalRBoard.Business
             return GetBoard();
         }
 
-        public static Card AddCard(string title, string description, string listId)
+        public static Board AddCard(string title, string description)
         {
-            Card card;
+            Board board = GetBoard();
             using (BoardDataProvider provider = new BoardDataProvider())
             {
-                card = provider.UpdateCard(new CardParameters
+                var sourceList = board.Lists.FirstOrDefault();
+                if (sourceList != null && sourceList.Cards.Count < sourceList.MaxItems)
                 {
-                    Title = title,
-                    Description = description,
-                    ListId = new Guid(listId)
-                });
+                    provider.UpdateCard(new CardParameters
+                    {
+                        Title = title,
+                        Description = description,
+                        ListId = sourceList.Id
+                    });
+                }
             }
-            return card;
+            return GetBoard();
         }
 
         public static Card UpdateCard(string title, string description, string cardId)
@@ -172,6 +176,26 @@ namespace SignalRBoard.Business
             return board;
         }
 
+        public static Board MoveCardTo(Guid cardId, Guid listId, int position)
+        {
+            Board board = GetBoard();
+            var sourceList = board.Lists.FirstOrDefault(l => l.Cards.Any(c => c.Id == cardId));
+            var destinationList = board.Lists.FirstOrDefault(l => l.Id == listId);
+            if (sourceList != null && destinationList != null)
+            {
+                var affectedCard = sourceList.Cards.First(c => c.Id == cardId);
+                if (destinationList.Cards.Count < destinationList.MaxItems || destinationList == sourceList)
+                {
+                    sourceList.Cards.Remove(affectedCard);
+                    affectedCard.ListId = destinationList.Id;
+                    destinationList.Cards.Insert(position - 1, affectedCard);
+                    ResetPositions(sourceList);
+                    ResetPositions(destinationList);
+                }
+            }
+            return board;
+        }
+
         public static List<string> GetDirections(Guid cardId)
         {
             var board = GetBoard();
@@ -195,13 +219,13 @@ namespace SignalRBoard.Business
                 }
 
                 var destinationList = board.Lists.FirstOrDefault(l => l.Position == sourceList.Position + 1);  //right
-                if (destinationList != null && destinationList.Cards.Count <= destinationList.MaxItems)
+                if (destinationList != null && destinationList.Cards.Count < destinationList.MaxItems)
                 {
                     directions.Add(Direction.Right.ToString());
                 }
 
                 destinationList = board.Lists.FirstOrDefault(l => l.Position == sourceList.Position - 1); // left
-                if (destinationList != null && destinationList.Cards.Count <= destinationList.MaxItems)
+                if (destinationList != null && destinationList.Cards.Count < destinationList.MaxItems)
                 {
                     directions.Add(Direction.Left.ToString());
                 }
