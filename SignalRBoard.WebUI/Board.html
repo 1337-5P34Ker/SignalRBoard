@@ -1,15 +1,25 @@
 ﻿<!DOCTYPE html>
 <html>
 <head>
+
+    <style type="text/css">
+        .activeCard {
+            background: url(/Images/activeCardBackground.png) top left repeat;
+        }
+    </style>
+
     <title>SignalR Board</title>
     <!-- Style references -->
     <link rel="stylesheet" href="Content/bootstrap.min.css" />
     <link rel="stylesheet" href="Content/bootstrap-theme.min.css" />
-    <link rel="stylesheet" href="Content/font-awesome.min.css" />
+    <link rel="stylesheet" href="Content/font-awesome.min.css"/>
+    <link rel="stylesheet" href="Content/styles.min.css" />
 
     <!--Script references. -->
     <!--Reference the jQuery library. -->
     <script src="Scripts/jquery-2.2.3.min.js"></script>
+    <!--Reference the jQuery UI library. -->
+    <script src="Scripts/jquery-ui-1.11.4.js"></script>
     <!--Reference the Bootstrap library. -->
     <script src="Scripts/bootstrap.min.js"></script>
     <!--Reference the SignalR library. -->
@@ -36,26 +46,10 @@
 
 
     <div class="container" style="margin-top: 80px">
-
-        <div class="row">
-            <div class="col-md-4">
-                <div class="list-group" id="fb9344df-0d30-4183-bd15-d3c2e4afe978">
+        <div id="board" class="row"></div>
 
 
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="list-group" id="fb9344df-0d30-4183-bd15-d3c2e4afe9aa">
-
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="list-group" id="fb9344df-0d30-4183-bd15-d3c2e4afe9bb">
-
-                </div>
-            </div>
-        </div>
-        <div class="row" id="form">
+        <div class="row" id="form" style="margin-top: 50px;">
             <div class="col-md-4">
                 <div class="form-group">
                     <label for="title">Titel:</label>
@@ -67,84 +61,97 @@
                     <textarea id="description" class="form-control" placeholder="Beschreibung" style="height: 75px"></textarea>
                 </div>
                 <div class="btn-group" role="group">
-                    <input type="button" id="btnSave" value="Add" class="btn btn-default"/>
-                    <input type="button" id="btnUpdate" value="Update" class="btn btn-default"/>
-                    <input type="button" id="btnDelete" value="Delete" class="btn btn-default"/>
+                    <input type="button" id="btnSave" value="Add" class="btn btn-default" />
+                    <input type="button" id="btnUpdate" value="Update" class="btn btn-default" />
+                    <input type="button" id="btnDelete" value="Delete" class="btn btn-default" />
                 </div>
-            <!--
-            <div class="btn-group" role="group" style="margin-top:30px">
-                <input type="button" id="btnMoveUp" value="Up" class="btn btn-default"/>
-                <input type="button" id="btnMoveDown" value="Down" class="btn btn-default"/>
-                <input type="button" id="btnMoveRight" value="Right" class="btn btn-default"/>
-                <input type="button" id="btnMoveLeft" value="Left" class="btn btn-default"/>
-            </div>
-                -->
+                <div class="btn-group" role="group" style="margin-top: 30px">
+                    <input type="button" id="btnMoveLeft" value="Left" class="btn btn-default"/>
+                    <input type="button" id="btnMoveUp" value="Up" class="btn btn-default"/>
+                    <input type="button" id="btnMoveDown" value="Down" class="btn btn-default"/>
+                    <input type="button" id="btnMoveRight" value="Right" class="btn btn-default"/>
+                </div>
             </div>
         </div>
     </div>
-
-
-
     <!--Add script to update the page and send messages.-->
     <script type="text/javascript">
-
+        var board;
         function getCard(parameters) {
             console.log('cardId: ' + $(parameters).data('cardId'));
-            $('#title').val($('h4', parameters).text());
-            $('#description').val($('p', parameters).text());
+            $('#title').val($('.title', parameters).text());
             $('#cardId').val($(parameters).data('cardId'));
+            $('#description').val($('.description', parameters).text());
+            board.server.GetDirections($('#cardId').val());
+            $('.activeCard').removeClass('activeCard');
+            $(parameters).addClass('activeCard');
         }
 
 
+        function handleDragStop(event, ui)
+        {
+            var card = event.target;
+            var cardId = event.target.id;
+            var list = $(event.target).closest('.list');
+            var listId = list.attr('id');
+            var position = $('#' + listId + '>div').index(card);
+
+            console.log('card ID: ' + cardId + '\n list ID: ' + listId + '\n Position ' + position);
+            board.server.MoveTo(cardId, listId, position);
+        }
+
         $(function () {
             // Declare a proxy to reference the hub.
-            var board = $.connection.boardHub;
+
+
+            board = $.connection.boardHub;
             // Create a function that the hub can call to broadcast messages.
             board.client.boardMessage = function (message) {
                 // Html encode display name and message.
                 console.log('boardMessage');
-                $.each(message, function (index, list) {
-                    //console.log(list);
-                    //console.log(index);
+                $('#board').empty();
 
+                $.each(message, function(index, list)
+                {
+                    var listTemplate = $("<div class='col-md-4'><div class='list'><div class='list-header'></div></div></div>");
+                    $('.list-header', listTemplate).text(list.Name);
+                    $('.list', listTemplate).attr('id', list.Id);
+                   
+               
                     $.each(list.Cards, function (index, card) {
-                        //console.log(card);
-                        //console.log(index);
-                        var template = $("<a onclick='getCard(this)' href='#form' class='list-group-item'><h4 class='list-group-item-heading'>Lorem ipsum</h4><p class='list-group-item-text'>Dolor sit amet</p></a>");
-                        $('h4', template).text(card.Title + ' - ' + card.Position);
-                        $('p', template).text(card.Description);
-                        $(template).data('cardId', card.Id);
-                        $(template).attr('id', card.Id);
+                        var cardTemplate = $("<div onclick='getCard(this)' class='card'><h4 class='title'></h4><div class='description'>Dolor sit amet</div>" +
+                            "<div class='card-footer'><span class='remove'><i class='fa fa-remove'></i> Löschen</span></div></div>");
+                        $('h4', cardTemplate).text(card.Title);
+                        $('.description', cardTemplate).text(card.Description);
+                        $('span.remove', cardTemplate).on('click', function() { removeCard(card.Id); });
+                        $(cardTemplate).data('cardId', card.Id);
+                        $(cardTemplate).attr('id', card.Id);
+
                         //var cardId = '#' + cardId;
                         $('#' + card.Id).remove();
-                        var id = "#" + card.ListId;
-                        $(id).append(template);
+                        $('.list', listTemplate).append(cardTemplate);
                     });
+                    $('#board').append(listTemplate);
                 });
+                var currentCardId = $('#cardId').val();
+                $('#' + currentCardId).addClass('activeCard');
+                $('.list').sortable();
+                $(".list").disableSelection();
+                $(".card").draggable({
+                    connectToSortable: ".list",
+                    revert: "invalid",
+                    stop: handleDragStop
+                });
+
+
             };
 
-            board.client.addCardMessage = function (card) {
-                // Html encode display name and message.
-                console.log('addCardMessage');
-
-                var template = $("<a onclick='getCard(this)' href='#form' class='list-group-item'><h4 class='list-group-item-heading'>Lorem ipsum</h4><p class='list-group-item-text'>Dolor sit amet</p></a>");
-                $('h4', template).text(card.Title);
-                $('p', template).text(card.Description);
-                $(template).data('cardId', card.Id);
-                $(template).attr('id', card.Id);
-                // Add the message to the first column.
-                var id = "#" + card.ListId;
-                $(id).append(template);
-            };
-
-            board.client.updateCardMessage = function (card) {
+            board.client.updateCardMessage = function (message) {
                 // Html encode display name and message.
                 console.log('updateCardMessage');
-                var id = '#' + card.Id;
-                var template = $(id);
-                $('h4', template).text(card.Title);
-                $('p', template).text(card.Description);
-                $(template).data('cardId', card.Id);
+                var card = $('#' + message.Id);
+                $('.title', card).text(message.Title);
+                $('.description', card).text(message.Description);
             };
 
             board.client.deleteCardMessage = function (cardId) {
@@ -153,6 +160,26 @@
                 $(id).remove();
             };
 
+            board.client.directionsMessage = function (message) {
+                console.log('getDirectionsMessage');
+
+                $('#btnMoveLeft').prop('disabled', message.indexOf('Left') === -1);
+                $('#btnMoveRight').prop('disabled', message.indexOf('Right') === -1);
+                $('#btnMoveUp').prop('disabled', message.indexOf('Up') === -1);
+                $('#btnMoveDown').prop('disabled', message.indexOf('Down') === -1);
+
+            };
+
+            board.client.activateCardMessage = function (cardId) {
+                console.log('activateCardMessage');
+
+                $('.activeCard').removeClass('activeCard');
+                $('#' + cardId).addClass('activeCard');
+
+            };
+
+
+
             // Start the connection.
             $.connection.hub.start().done(function () {
                 console.log('$.connection.hub.start');
@@ -160,7 +187,7 @@
 
                 $('#btnSave').click(function () {
                     // Call the Send method on the hub.
-                    board.server.Add($('#title').val(), $('#description').val(), 'fb9344df-0d30-4183-bd15-d3c2e4afe978');
+                    board.server.Add($('#title').val(), $('#description').val());
                     // Clear text box and reset focus for next comment.
                     $('#title').val('').focus();
                     $('#description').val('');
@@ -171,17 +198,49 @@
                     board.server.Update($('#title').val(), $('#description').val(), $('#cardId').val());
                 });
 
-                $('#btnDelete').click(function () {
-                    // Call the Update method on the hub.
-                    board.server.Delete($('#cardId').val());
+                $('#btnDelete').click(function ()
+                {
+                    removeCard($('#cardId').val());
                 });
 
                 $('#btnMoveUp').click(function () {
                     // Call the Update method on the hub.
                     board.server.Move($('#cardId').val(), "Up");
                 });
+
+                $('#btnMoveDown').click(function () {
+                    // Call the Update method on the hub.
+                    board.server.Move($('#cardId').val(), "Down");
+                });
+
+                $('#btnMoveRight').click(function () {
+                    // Call the Update method on the hub.
+                    board.server.Move($('#cardId').val(), "Right");
+                });
+
+                $('#btnMoveLeft').click(function () {
+                    // Call the Update method on the hub.
+                    board.server.Move($('#cardId').val(), "Left");
+                });
             });
         });
+
+        function guid() {
+            function s4() {
+                return Math.floor((1 + Math.random()) * 0x10000)
+                  .toString(16)
+                  .substring(1);
+            }
+            return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
+              s4() + '-' + s4() + s4() + s4();
+        }
+
+        function removeCard(cardId)
+        {
+            // Call the Delete method on the hub.
+            board.server.Delete(cardId);
+        }
+
     </script>
 </body>
 </html>

@@ -12,33 +12,26 @@ namespace SignalRBoard.Business
     {
         public static Board InitializeBoard()
         {
-            Board board = new Board();
-            using (BoardDataProvider provider = new BoardDataProvider())
-            {
-                board.Lists = provider.GetLists(new ListParameters());
-                // Call the broadcastMessage method to update clients.
-
-                foreach (var list in board.Lists)
-                {
-                    list.Cards = provider.GetCards(new CardParameters { ListId = list.Id });
-                }
-            }
-            return board;
+            return GetBoard();
         }
 
-        public static Card AddCard(string title, string description, string listId)
+        public static Board AddCard(string title, string description)
         {
-            Card card;
+            Board board = GetBoard();
             using (BoardDataProvider provider = new BoardDataProvider())
             {
-                card = provider.UpdateCard(new CardParameters
+                var sourceList = board.Lists.FirstOrDefault();
+                if (sourceList != null && sourceList.Cards.Count < sourceList.MaxItems)
                 {
-                    Title = title,
-                    Description = description,
-                    ListId = new Guid(listId)
-                });
+                    provider.UpdateCard(new CardParameters
+                    {
+                        Title = title,
+                        Description = description,
+                        ListId = sourceList.Id
+                    });
+                }
             }
-            return card;
+            return GetBoard();
         }
 
         public static Card UpdateCard(string title, string description, string cardId)
@@ -67,9 +60,26 @@ namespace SignalRBoard.Business
             }
         }
 
+        private static void UpdateCard(Card card)
+        {
+            using (BoardDataProvider provider = new BoardDataProvider())
+            {
+                provider.UpdateCard(new CardParameters
+                {
+                    Id = card.Id,
+                    Position = card.Position,
+                    Description = card.Description,
+                    Title = card.Title,
+                    ListId = card.ListId
+                });
+            }
+        }
+
         public static Board MoveCard(Guid cardId, Direction direction)
         {
             Board board = new Board();
+            List sourceList, destinationList;
+            Card affectedCard;
             using (BoardDataProvider provider = new BoardDataProvider())
             {
                 board.Lists = provider.GetLists(new ListParameters()).OrderBy(l => l.Position).ToList();
@@ -92,57 +102,159 @@ namespace SignalRBoard.Business
             {
                 case Direction.Up:
 
-                    var affectedRow = board.Lists.FirstOrDefault(l => l.Cards.Any(c => c.Id == cardId));
-                    if (affectedRow != null)
+                    sourceList = board.Lists.FirstOrDefault(l => l.Cards.Any(c => c.Id == cardId));
+                    if (sourceList != null)
                     {
-                        var card1 = affectedRow.Cards.First(c => c.Id == cardId);
-
-                        if (card1.Position > 0)
+                        affectedCard = sourceList.Cards.First(c => c.Id == cardId);
+                        var index = sourceList.Cards.IndexOf(affectedCard);
+                        if (index > 0)
                         {
-                            var card2 = affectedRow.Cards.FirstOrDefault(c => c.Position == card1.Position - 1);
-                            if (card2 != null)
-                            {
-                                card2.Position = card1.Position;
-                                card1.Position = card1.Position - 1;
-
-                                using (BoardDataProvider provider = new BoardDataProvider())
-                                {
-                                    provider.UpdateCard(new CardParameters
-                                    {                                        
-                                        Id = card1.Id,
-                                        Position = card1.Position,
-                                        Description = card1.Description,
-                                        Title = card1.Title,
-                                        ListId = card1.ListId
-                                                                                
-                                    });
-
-                                    provider.UpdateCard(new CardParameters
-                                    {
-                                        Id = card2.Id,
-                                        Position = card2.Position,
-                                        Description = card2.Description,
-                                        Title = card2.Title,
-                                        ListId = card2.ListId
-                                    });
-                                }
-
-                            }
-
+                            sourceList.Cards.Remove(affectedCard);
+                            sourceList.Cards.Insert(index - 1, affectedCard);
+                            ResetPositions(sourceList);
                         }
                     }
-                        break;
+                    break;
 
                 case Direction.Down:
 
+                    sourceList = board.Lists.FirstOrDefault(l => l.Cards.Any(c => c.Id == cardId));
+                    if (sourceList != null)
+                    {
+                        affectedCard = sourceList.Cards.First(c => c.Id == cardId);
+                        var index = sourceList.Cards.IndexOf(affectedCard);
+                        if (index < sourceList.Cards.Count - 1)
+                        {
+                            sourceList.Cards.Remove(affectedCard);
+                            sourceList.Cards.Insert(index + 1, affectedCard);
+                            ResetPositions(sourceList);
+                        }
+
+                    }
+                    break;
+                case Direction.Right:
+                    sourceList = board.Lists.FirstOrDefault(l => l.Cards.Any(c => c.Id == cardId));
+
+                    if (sourceList != null)
+                    {
+                        affectedCard = sourceList.Cards.First(c => c.Id == cardId);
+                        var index = sourceList.Cards.IndexOf(affectedCard);
+                        destinationList = board.Lists.FirstOrDefault(l => l.Position == sourceList.Position + 1);
+                        if (destinationList != null)
+                        {
+                            sourceList.Cards.Remove(affectedCard);
+                            affectedCard.ListId = destinationList.Id;
+                            destinationList.Cards.Insert(destinationList.Cards.Count >= index ? index : destinationList.Cards.Count, affectedCard);
+                            ResetPositions(sourceList);
+                            ResetPositions(destinationList);
+                        }
+
+                    }
+
+                    break;
+
+                case Direction.Left:
+                    sourceList = board.Lists.FirstOrDefault(l => l.Cards.Any(c => c.Id == cardId));
+
+                    if (sourceList != null)
+                    {
+                        affectedCard = sourceList.Cards.First(c => c.Id == cardId);
+                        var index = sourceList.Cards.IndexOf(affectedCard);
+                        destinationList = board.Lists.FirstOrDefault(l => l.Position == sourceList.Position - 1);
+                        if (destinationList != null)
+                        {
+                            sourceList.Cards.Remove(affectedCard);
+                            affectedCard.ListId = destinationList.Id;
+                            destinationList.Cards.Insert(destinationList.Cards.Count >= index ? index : destinationList.Cards.Count, affectedCard);
+
+                            ResetPositions(sourceList);
+                            ResetPositions(destinationList);
+                        }
+                    }
                     break;
             }
+            return board;
+        }
 
-            foreach (var list in board.Lists)
+        public static Board MoveCardTo(Guid cardId, Guid listId, int position)
+        {
+            Board board = GetBoard();
+            var sourceList = board.Lists.FirstOrDefault(l => l.Cards.Any(c => c.Id == cardId));
+            var destinationList = board.Lists.FirstOrDefault(l => l.Id == listId);
+            if (sourceList != null && destinationList != null)
             {
-                list.Cards = list.Cards.OrderBy(c => c.Position).ToList();                
+                var affectedCard = sourceList.Cards.First(c => c.Id == cardId);
+                if (destinationList.Cards.Count < destinationList.MaxItems || destinationList == sourceList)
+                {
+                    sourceList.Cards.Remove(affectedCard);
+                    affectedCard.ListId = destinationList.Id;
+                    destinationList.Cards.Insert(position - 1, affectedCard);
+                    ResetPositions(sourceList);
+                    ResetPositions(destinationList);
+                }
             }
+            return board;
+        }
 
+        public static List<string> GetDirections(Guid cardId)
+        {
+            var board = GetBoard();
+            var directions = new List<string>();
+
+            var sourceList = board.Lists.FirstOrDefault(l => l.Cards.Any(c => c.Id == cardId));
+
+
+            if (sourceList != null)
+            {
+                var affectedCard = sourceList.Cards.First(c => c.Id == cardId);
+                var index = sourceList.Cards.IndexOf(affectedCard);
+                if (index < sourceList.Cards.Count - 1)
+                {
+                    directions.Add(Direction.Down.ToString());
+                }
+
+                if (index > 0)
+                {
+                    directions.Add(Direction.Up.ToString());
+                }
+
+                var destinationList = board.Lists.FirstOrDefault(l => l.Position == sourceList.Position + 1);  //right
+                if (destinationList != null && destinationList.Cards.Count < destinationList.MaxItems)
+                {
+                    directions.Add(Direction.Right.ToString());
+                }
+
+                destinationList = board.Lists.FirstOrDefault(l => l.Position == sourceList.Position - 1); // left
+                if (destinationList != null && destinationList.Cards.Count < destinationList.MaxItems)
+                {
+                    directions.Add(Direction.Left.ToString());
+                }
+            }
+            return directions;
+        }
+
+        private static void ResetPositions(List destinationList)
+        {
+            foreach (var card in destinationList.Cards)
+            {
+                card.Position = destinationList.Cards.IndexOf(card); // reset positions
+                UpdateCard(card);
+            }
+        }
+
+        private static Board GetBoard()
+        {
+            Board board = new Board();
+            using (BoardDataProvider provider = new BoardDataProvider())
+            {
+                board.Lists = provider.GetLists(new ListParameters());
+                // Call the broadcastMessage method to update clients.
+
+                foreach (var list in board.Lists)
+                {
+                    list.Cards = provider.GetCards(new CardParameters { ListId = list.Id });
+                }
+            }
             return board;
         }
     }

@@ -9,4 +9,5 @@ AS
   FROM [SignalRBoard].[dbo].[Cards] 
   WHERE
   (@ListId IS NULL OR [ListId] = @ListId)
+  ORDER BY [Position]
 
