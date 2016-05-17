@@ -5,11 +5,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using NLog;
 
 namespace SignalRBoard.Business
 {
     public static class BoardHelper
     {
+        private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
+
         public static Board InitializeBoard()
         {
             return GetBoard();

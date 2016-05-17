@@ -1,20 +1,21 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
 using Microsoft.AspNet.SignalR;
-using SignalRBoard.DataAccess;
 using Microsoft.AspNet.SignalR.Hubs;
-using SignalRBoard.DataModel;
+using NLog;
 using SignalRBoard.Business;
+using SignalRBoard.DataAccess;
+using SignalRBoard.DataModel;
 
 namespace SignalRBoard
 {
     public class BoardHub : Hub
     {
+        private readonly Logger _logger = LogManager.GetCurrentClassLogger(); 
+
         [HubMethodName("Add")]
         public void Add(string title, string description)
         {
+            _logger.Info("Add called");
             Board board = BoardHelper.AddCard(title, description);
             // Call the boardMessage method to update all clients.
             Clients.All.boardMessage(board.Lists);
