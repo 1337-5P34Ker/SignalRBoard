@@ -10,7 +10,7 @@ namespace SignalRBoard
 {
     public class BoardHub : Hub
     {
-        private readonly Logger _logger = LogManager.GetCurrentClassLogger(); 
+        private static readonly Logger _logger = LogManager.GetCurrentClassLogger(); 
 
         [HubMethodName("Add")]
         public void Add(string title, string description)
